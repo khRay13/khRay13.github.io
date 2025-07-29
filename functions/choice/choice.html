@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="隨機抽籤拉霸機 - 快速動畫">
+  <title>隨機抽籤 - 拉霸機</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>隨機抽籤拉霸機</h1>
+  </header>
+  <main>
+    <div class="slot-machine">
+      <div class="reel" id="reel" aria-live="polite">
+        <div class="reel-content"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <input type="file" id="optionsFile" accept=".txt" aria-label="上傳選項檔案">
+      <button id="startButton">開始抽籤</button>
+    </div>
+    <p id="status">請上傳選項檔案（每行一個選項）或直接開始抽籤</p>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
