@@ -1,0 +1,233 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+header {
+  text-align: center;
+  padding: 0.5% 0px 0.5% 0px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.slot-machine {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: #333;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  border: 5px solid #ffd700;
+  margin: 20px;
+}
+
+.reel {
+  height: 300px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 480px; /* 最小寬度 */
+}
+
+.reel-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  transition: transform 0.5s ease-out;
+}
+
+.reel.spinning .reel-content {
+  animation: spin 0.3s linear infinite;
+}
+
+.reel.stopping .reel-content {
+  animation: none;
+  transform: translateY(0);
+}
+
+@keyframes spin {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+.reel-content span {
+  font-size: 48px;
+  font-weight: bold;
+  color: #333;
+  line-height: 80px;
+  text-align: center;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap; /* 防止文字換行 */
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin: 20px;
+}
+
+input[type="file"] {
+  padding: 10px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ff4b4b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #e43a3a;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+#answerButton {
+  background-color: #ff6b6b;
+}
+
+#answerButton:hover:not(:disabled) {
+  background-color: #ff5252;
+}
+
+#status {
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+}
+
+/* 小視窗樣式 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-style: dashed;
+  border-radius: 15px;
+  border-width: 8px;
+  border-color: #1ea545;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 80%;
+  max-height: 80%;
+  position: relative;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+  color: #ff4b4b;
+}
+
+.modal-body {
+  font-size: 3.5em;
+  color: #333;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* 響應式設計 */
+@media (max-width: 600px) {
+  .reel {
+    height: 240px;
+    min-width: 200px; /* 響應式下的最小寬度 */
+  }
+
+  .reel-content span {
+    font-size: 36px;
+    line-height: 60px;
+    height: 60px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .model-body {
+    font-size: 36px;
+  }
+}
