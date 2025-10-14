@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="styles.css">
+<title>搶答即時看板 — WebSocket Client</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="title">
+        <h1>🏁 即時搶答看板</h1>
+        <div id="connStatus" class="status">
+          <span class="dot"></span><span id="statusText">未連線</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="btnToggle" class="btn small">Connect</button>
+        <button id="btnClear" class="btn small">清除畫面</button>
+      </div>
+
+      <div id="answers" class="answers-list"></div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
