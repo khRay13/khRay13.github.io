@@ -1,7 +1,12 @@
 // const WS_URL = "wss://REPLACE_WITH_YOUR_WEBSOCKET_ENDPOINT/dev";
 const WS_URL = "wss";
-const BATCH_INTERVAL_MS = 100;
-const MAX_DISPLAY = 50;
+// TODO 改成自己的 WebSocket API Gateway Endpoint
+/* TODO 目前已實作到可以在lambda收到action類別
+        下一步需要根據 action 類別來處理不同的邏輯 */
+/* TODO $connect的connectionId寫入dynamoDB要指定寫入到我的Line UID
+        這樣才能在搶答Lambda收到訊息後，知道要發給哪個connectionId */
+const BATCH_INTERVAL_MS = 10;
+const MAX_DISPLAY = 10;
 
 let ws = null, connected = false, reconnectAttempts = 0;
 let messageQueue = [], answersState = [];
@@ -36,9 +41,18 @@ function connect(){
     statusText.innerText="已連線"; connStatus.classList.add('connected');
     btnToggle.innerText="Disconnect"; btnToggle.classList.replace("bg-green-500","bg-red-500");
     log("WebSocket 已建立連線"); startHeartbeat();
+
+    const payload = {
+      action: "register",
+      alias: "viewer_onlyans",
+      ts: Date.now()
+    };
+    try{ ws.send(JSON.stringify(payload)); log("註冊訊息已送出"); }
+    catch(e){ log("註冊訊息送出失敗: "+e.message); }
   };
 
   ws.onmessage = evt => {
+    console.log("收到訊息: ", evt.data);
     try { messageQueue.push(JSON.parse(evt.data)); }
     catch(e){ log("非 JSON 訊息: "+evt.data); }
   };
@@ -49,7 +63,6 @@ function connect(){
 //     log(`連線已關閉 (code=${evt.code})`); stopHeartbeat(); scheduleReconnect();
 //   };
   ws.onclose = wsOnClose;
-
   ws.onerror = err=>{ log("WebSocket error: "+(err.message||JSON.stringify(err))); }
 }
 
@@ -98,17 +111,17 @@ function handleBatch(batch){
 
 function normalizeAnswer(msg){
   const now=Date.now();
-  return {id: msg.id || `${msg.alias||'u'}_${msg.time||now}_${Math.random().toString(36).slice(2,7)}`, user: msg.alias||'匿名', answer: msg.answer||'', score: msg.score||'', ts: msg.time||now};
+  return {user: msg.alias||'匿名', ts: msg.time||now};
 }
+// TODO ts要改為搶答時間(在websocket回傳的內容)
 
 function renderAnswers(){
   answersEl.innerHTML='';
   answersState.forEach((itm,i)=>{
     const el=document.createElement('div');
     el.className='answer'+(i===0?' new':'');
-    el.innerHTML=`<div class="avatar">${escapeHtml((itm.user||'匿名').slice(0,2))}</div>
-                    <div class="meta"><div class="who">${escapeHtml(itm.user)}</div><div class="txt">${escapeHtml(itm.answer)}</div></div>
-                    <div class="score">${escapeHtml(itm.score||'')}</div>`;
+    el.innerHTML=`<div class="meta"><div class="who">${escapeHtml(itm.user)}</div></div>
+                    <div class="score">${escapeHtml(itm.ts)}</div>`;
     answersEl.appendChild(el);
     if(i===0) setTimeout(()=>el.classList.remove('new'),800);
   });
