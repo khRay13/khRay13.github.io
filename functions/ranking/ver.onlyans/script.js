@@ -3,7 +3,6 @@
 /* TODO $connect的connectionId寫入dynamoDB要指定寫入到我的Line UID
         這樣才能在搶答Lambda收到訊息後，知道要發給哪個connectionId */
 const BATCH_INTERVAL_MS = 10;
-const MAX_DISPLAY = 10;
 
 let ws = null, connected = false, reconnectAttempts = 0;
 let messageQueue = [], answersState = [];
@@ -18,26 +17,36 @@ let manualDisconnect = false;
 btnToggle.onclick = () => {
   if(!connected){
     manualDisconnect = false; // 這次是主動 Connect
-    statusText.innerText = "連線中..."; // 顯示提示
     connect();
   } else {
     manualDisconnect = true; // 主動斷線
     disconnect();
   }
 };
-document.getElementById('btnClear').onclick = () => { answersState = []; renderAnswers(); };
+document.getElementById('btnClear').onclick = () => {
+  answersState = []; renderAnswers();
+  log("Cleared.");
+};
 
 function log(msg){ logEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logEl.innerText; }
 
 function connect(){
   let WS_URL = document.getElementById("wssUrl").value;
-  if (!WS_URL.includes("REPLACE")){ ws = new WebSocket(WS_URL); }
-  else { log("請設定 WS_URL"); return; }
+  console.log("WS_URL=", WS_URL);
+  if (!WS_URL.trim()==="") {
+    statusText.innerText = "連線中..."; // 顯示提示
+    ws = new WebSocket(WS_URL);
+  } else {
+    log("請設定 WS_URL");
+    return;
+  }
 
   ws.onopen = ()=>{
     connected=true; reconnectAttempts=0;
-    statusText.innerText="已連線"; connStatus.classList.add('connected');
-    btnToggle.innerText="Disconnect"; btnToggle.classList.replace("bg-green-500","bg-red-500");
+    statusText.innerText="已連線";
+    connStatus.classList.add('connected');
+    btnToggle.innerText="Disconnect";
+    btnToggle.classList.replace("bg-green-500","bg-red-500");
     log("WebSocket 已建立連線");
 
     const payload = {
@@ -45,14 +54,20 @@ function connect(){
       alias: "viewer_onlyans",
       ts: Date.now()
     };
-    try{ ws.send(JSON.stringify(payload)); log("註冊訊息已送出"); }
-    catch(e){ log("註冊訊息送出失敗: "+e.message); }
+    try {
+      ws.send(JSON.stringify(payload)); log("註冊訊息已送出");
+    } catch(e) {
+      log("註冊訊息送出失敗: "+e.message);
+    }
   };
 
   ws.onmessage = evt => {
     // console.log("收到訊息: ", evt.data);
-    try { messageQueue.push(JSON.parse(evt.data)); }
-    catch(e){ log("非 JSON 訊息: "+evt.data); }
+    try {
+      messageQueue.push(JSON.parse(evt.data));
+    } catch(e) {
+      log("非 JSON 訊息: "+evt.data);
+    }
   };
 
   ws.onclose = evt=>{
@@ -74,8 +89,9 @@ function disconnect(){
 }
 
 function safeCloseWs(){
-  try{ if(ws) ws.close(); }
-  catch{} ws=null;
+  try{
+    if(ws) ws.close();
+  } catch{} ws=null;
 }
 
 function scheduleReconnect(){
@@ -92,6 +108,7 @@ setInterval(()=>{
 }, BATCH_INTERVAL_MS);
 
 function handleBatch(batch){
+  let MAX_DISPLAY = parseInt(document.getElementById('maxAnswers').value)||10;
   batch.forEach(msg=>{
     let entry = normalizeAnswer(msg.body || msg);
     if(!answersState.some(a=>a.id===entry.user)) answersState.unshift(entry);
@@ -103,7 +120,7 @@ function handleBatch(batch){
 function normalizeAnswer(msg){
   const now=Date.now();
   console.log("Response: ", msg);
-  return {user: msg.alias||'匿名', ts: msg.time||now};
+  return {user: msg.alias||'None', ts: msg.time||now};
 }
 // TODO ts要改為搶答時間(在websocket回傳的內容)
 
@@ -119,6 +136,12 @@ function renderAnswers(){
   });
 }
 
-function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escapeHtml(s){
+  return String(s||'').replace(
+    /[&<>"]/g, c=>(
+      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]
+    )
+  );
+}
 
 log('Client initialized.');
