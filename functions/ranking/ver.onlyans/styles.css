@@ -43,6 +43,48 @@ html,body{
     margin:0;
 }
 
+/* Style for the span label */
+.websocket-label {
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+/* Style for the input field */
+.websocket-input {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 6px 10px;
+    width: 200px; /* Adjust width as needed */
+    vertical-align: middle;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+/* Hover effect for the input */
+.websocket-input:hover {
+    border-color: #999;
+}
+
+/* Focus effect for the input */
+.websocket-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Ensure the input and label align properly */
+.websocket-container {
+    display: inline-flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
 .status {
     margin-left:auto;
     font-size:13px;

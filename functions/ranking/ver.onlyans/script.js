@@ -1,6 +1,3 @@
-// const WS_URL = "wss://REPLACE_WITH_YOUR_WEBSOCKET_ENDPOINT/dev";
-const WS_URL = "wss";
-// TODO 改成自己的 WebSocket API Gateway Endpoint
 /* TODO 目前已實作到可以在lambda收到action類別
         下一步需要根據 action 類別來處理不同的邏輯 */
 /* TODO $connect的connectionId寫入dynamoDB要指定寫入到我的Line UID
@@ -33,6 +30,7 @@ document.getElementById('btnClear').onclick = () => { answersState = []; renderA
 function log(msg){ logEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logEl.innerText; }
 
 function connect(){
+  let WS_URL = document.getElementById("wssUrl").value;
   if (!WS_URL.includes("REPLACE")){ ws = new WebSocket(WS_URL); }
   else { log("請設定 WS_URL"); return; }
 
@@ -40,7 +38,7 @@ function connect(){
     connected=true; reconnectAttempts=0;
     statusText.innerText="已連線"; connStatus.classList.add('connected');
     btnToggle.innerText="Disconnect"; btnToggle.classList.replace("bg-green-500","bg-red-500");
-    log("WebSocket 已建立連線"); startHeartbeat();
+    log("WebSocket 已建立連線");
 
     const payload = {
       action: "register",
@@ -52,36 +50,33 @@ function connect(){
   };
 
   ws.onmessage = evt => {
-    console.log("收到訊息: ", evt.data);
+    // console.log("收到訊息: ", evt.data);
     try { messageQueue.push(JSON.parse(evt.data)); }
     catch(e){ log("非 JSON 訊息: "+evt.data); }
   };
 
-//   ws.onclose = evt=>{
-//     connected=false; connStatus.classList.remove('connected');
-//     statusText.innerText="已斷線"; btnToggle.innerText="Connect"; btnToggle.classList.replace("bg-red-500","bg-green-500");
-//     log(`連線已關閉 (code=${evt.code})`); stopHeartbeat(); scheduleReconnect();
-//   };
-  ws.onclose = wsOnClose;
+  ws.onclose = evt=>{
+    connected = false;
+      connStatus.classList.remove('connected');
+      statusText.innerText = "已斷線";
+      btnToggle.innerText = "Connect";
+      btnToggle.classList.replace("bg-red-500","bg-green-500");
+      log(`連線已關閉 (code=${evt.code})`);
+      if(!manualDisconnect){ // 非手動斷線才排程重連
+        scheduleReconnect();
+      }
+  };
+  // ws.onclose = wsOnClose;
   ws.onerror = err=>{ log("WebSocket error: "+(err.message||JSON.stringify(err))); }
 }
-
-function disconnect(){ if(ws) ws.close(); }
-
-function wsOnClose(evt){
-  connected = false;
-  connStatus.classList.remove('connected');
-  statusText.innerText = "已斷線";
-  btnToggle.innerText = "Connect";
-  btnToggle.classList.replace("bg-red-500","bg-green-500");
-  log(`連線已關閉 (code=${evt.code})`);
-  stopHeartbeat();
-  if(!manualDisconnect){ // 非手動斷線才排程重連
-    scheduleReconnect();
-  }
+function disconnect(){
+  if(ws) ws.close();
 }
 
-function safeCloseWs(){ try{ if(ws) ws.close(); }catch{} ws=null; stopHeartbeat(); }
+function safeCloseWs(){
+  try{ if(ws) ws.close(); }
+  catch{} ws=null;
+}
 
 function scheduleReconnect(){
   reconnectAttempts++;
@@ -89,10 +84,6 @@ function scheduleReconnect(){
   log(`重連排程：${delay/1000}s 後嘗試 (第${reconnectAttempts}次)`);
   setTimeout(()=>connect(), delay);
 }
-
-let hbTimer=null;
-function startHeartbeat(){ if(hbTimer) clearInterval(hbTimer); hbTimer=setInterval(()=>{ if(connected&&ws&&ws.readyState===WebSocket.OPEN){ try{ ws.send(JSON.stringify({action:"ping",ts:Date.now()})); }catch{} } },25000);}
-function stopHeartbeat(){ if(hbTimer){ clearInterval(hbTimer); hbTimer=null; } }
 
 setInterval(()=>{
   if(messageQueue.length===0) return;
@@ -103,7 +94,7 @@ setInterval(()=>{
 function handleBatch(batch){
   batch.forEach(msg=>{
     let entry = normalizeAnswer(msg.body || msg);
-    if(!answersState.some(a=>a.id===entry.id)) answersState.unshift(entry);
+    if(!answersState.some(a=>a.id===entry.user)) answersState.unshift(entry);
   });
   if(answersState.length>MAX_DISPLAY) answersState=answersState.slice(0,MAX_DISPLAY);
   renderAnswers();
@@ -111,6 +102,7 @@ function handleBatch(batch){
 
 function normalizeAnswer(msg){
   const now=Date.now();
+  console.log("Response: ", msg);
   return {user: msg.alias||'匿名', ts: msg.time||now};
 }
 // TODO ts要改為搶答時間(在websocket回傳的內容)
