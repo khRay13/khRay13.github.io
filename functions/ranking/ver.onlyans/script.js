@@ -1,7 +1,5 @@
 /* TODO 目前已實作到可以在lambda收到action類別
         下一步需要根據 action 類別來處理不同的邏輯 */
-/* TODO $connect的connectionId寫入dynamoDB要指定寫入到我的Line UID
-        這樣才能在搶答Lambda收到訊息後，知道要發給哪個connectionId */
 const BATCH_INTERVAL_MS = 10;
 
 let ws = null, connected = false, reconnectAttempts = 0;
@@ -32,8 +30,8 @@ function log(msg){ logEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg
 
 function connect(){
   let WS_URL = document.getElementById("wssUrl").value;
-  console.log("WS_URL=", WS_URL);
-  if (!WS_URL.trim()==="") {
+  // console.log("WS_URL=", WS_URL);
+  if (!WS_URL.trim()=="") {
     statusText.innerText = "連線中..."; // 顯示提示
     ws = new WebSocket(WS_URL);
   } else {
@@ -49,17 +47,19 @@ function connect(){
     btnToggle.classList.replace("bg-green-500","bg-red-500");
     log("WebSocket 已建立連線");
 
-    const payload = {
-      action: "register",
-      alias: "viewer_onlyans",
-      ts: Date.now()
-    };
-    try {
-      ws.send(JSON.stringify(payload)); log("註冊訊息已送出");
-    } catch(e) {
-      log("註冊訊息送出失敗: "+e.message);
-    }
+    // const payload = {
+    //   action: "register",
+    //   alias: "viewer_onlyans",
+    //   ts: Date.now()
+    // };
+    // try {
+    //   ws.send(JSON.stringify(payload)); log("註冊訊息已送出");
+    // } catch(e) {
+    //   log("註冊訊息送出失敗: "+e.message);
+    // }
   };
+
+  // TODO 加入當 Server 處理 Clear 且完成發送時, 清空目前的 answersState 陣列
 
   ws.onmessage = evt => {
     // console.log("收到訊息: ", evt.data);
@@ -81,7 +81,6 @@ function connect(){
         scheduleReconnect();
       }
   };
-  // ws.onclose = wsOnClose;
   ws.onerror = err=>{ log("WebSocket error: "+(err.message||JSON.stringify(err))); }
 }
 function disconnect(){
@@ -120,9 +119,11 @@ function handleBatch(batch){
 function normalizeAnswer(msg){
   const now=Date.now();
   console.log("Response: ", msg);
-  return {user: msg.alias||'None', ts: msg.time||now};
+
+  // Transfrom the time format from ISO to HH:MM:SS
+  let std_time = msg.time.split("T")[1].split("+")[0];
+  return {user: msg.alias||'None', ts: std_time||now};
 }
-// TODO ts要改為搶答時間(在websocket回傳的內容)
 
 function renderAnswers(){
   answersEl.innerHTML='';
