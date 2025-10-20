@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="styles.css">
+<title>搶答即時看板 — WebSocket Client</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="title">
+        <h1>🎃 邪音梗來搶答 🎃</h1>
+        <div id="connStatus" class="status">
+          <div class="websocket-container">
+            <span class="websocket-label">WebSocket: </span>
+            <input type="password" id="wssUrl" class="websocket-input" placeholder="Enter wss URL"/>
+          </div>
+          <span class="dot"></span><span id="statusText">未連線</span>
+        </div>
+      </div>
+
+      <div class="subtitle">
+        <h3 id="alertMsg">題目準備中..</h3>
+      </div>
+
+      <div class="controls">
+        <button id="btnToggle" class="btn small">Connect</button>
+        <button id="btnClear" class="btn small">清除畫面</button>
+        <div class="smallCard">
+          <span>Display Max of</span>
+          <span>&nbsp;</span>
+          <input type="number" id="maxAnswers" class="input small smallCard-input" placeholder="顯示筆數" value="10" min="1" max="50"/>
+        </div>
+      </div>
+
+      <div id="answers" class="answers-list"></div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
