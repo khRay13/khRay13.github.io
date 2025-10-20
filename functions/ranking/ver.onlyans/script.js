@@ -11,6 +11,12 @@ const answersEl = document.getElementById('answers');
 const logEl = document.getElementById('log');
 const btnToggle = document.getElementById('btnToggle');
 
+// Setting the default subtitle content
+const alertMsg = document.getElementById('alertMsg');
+const quesReady = "準備完成 ⭕";
+const quesNotReady = "題目準備中.. 🚨";
+alertMsg.textContent = quesNotReady; // default value
+
 let manualDisconnect = false;
 btnToggle.onclick = () => {
   if(!connected){
@@ -21,12 +27,10 @@ btnToggle.onclick = () => {
     disconnect();
   }
 };
-document.getElementById('btnClear').onclick = () => {
-  answersState = []; renderAnswers();
-  log("Cleared.");
-};
+document.getElementById('btnClear').onclick = () => { clearWindow(); }
 
-function log(msg){ logEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logEl.innerText; }
+function log(msg){ logEl.innerText += `[${new Date().toLocaleTimeString()}] ${msg}\n`; }
+function clearWindow(){ answersState = []; renderAnswers(); log("Cleared."); }
 
 function connect(){
   let WS_URL = document.getElementById("wssUrl").value;
@@ -59,14 +63,21 @@ function connect(){
     // }
   };
 
-  // TODO 加入當 Server 處理 Clear 且完成發送時, 清空目前的 answersState 陣列
-
-  ws.onmessage = evt => {
+    ws.onmessage = evt => {
     // console.log("收到訊息: ", evt.data);
-    try {
-      messageQueue.push(JSON.parse(evt.data));
-    } catch(e) {
-      log("非 JSON 訊息: "+evt.data);
+    evt_data = JSON.parse(evt.data);
+    // console.log(evt_data);
+    if (evt_data['type'] == "clear_window") {
+      clearWindow();
+      alertMsg.textContent = quesNotReady;
+    } else if (evt_data['type'] == "ques_ready") {
+      alertMsg.textContent = quesReady;
+    } else {
+      try {
+        messageQueue.push(evt_data);
+      } catch(e) {
+        log("非 JSON 訊息: "+evt.data);
+      }
     }
   };
 

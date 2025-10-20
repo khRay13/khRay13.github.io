@@ -5,6 +5,7 @@
 :root{
     --bg:#0f172a;
     --card:#0b1220;
+    --smallCard:#0b1220;
     --accent:#06b6d4;
     --muted:#94a3b8;
 }
@@ -31,6 +32,19 @@ html,body{
     border:1px solid rgba(255,255,255,0.03);
 }
 
+.smallCard{
+    background: rgba(255,255,255,0.03);
+    padding:12px;
+    box-shadow:0 6px 20px rgb(113 39 129 / 60%);
+    border:1px solid rgba(255,255,255,0.03);
+    border-radius:14px;
+    margin-left: auto;
+}
+
+.smallCard-input {
+    border-radius: 10px;
+}
+
 .title {
     display:flex;
     gap:10px;
@@ -41,6 +55,19 @@ html,body{
 .title h1 {
     font-size:22px;
     margin:0;
+}
+
+.subtitle {
+    padding: 0 30% 0 30%;
+}
+
+.subtitle h3 {
+    text-align: center;
+    padding: 8px 0 8px 0;
+    border: 4px dashed rgb(230, 108, 44);
+    border-radius: 4px;
+
+    color: pink;
 }
 
 /* Style for the span label */

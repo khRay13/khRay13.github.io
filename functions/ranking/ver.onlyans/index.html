@@ -11,7 +11,7 @@
   <div class="container">
     <div class="card">
       <div class="title">
-        <h1>🏁 即時搶答看板</h1>
+        <h1>🎃 邪音梗來搶答 🎃</h1>
         <div id="connStatus" class="status">
           <div class="websocket-container">
             <span class="websocket-label">WebSocket: </span>
@@ -21,13 +21,17 @@
         </div>
       </div>
 
+      <div class="subtitle">
+        <h3 id="alertMsg">題目準備中..</h3>
+      </div>
+
       <div class="controls">
         <button id="btnToggle" class="btn small">Connect</button>
         <button id="btnClear" class="btn small">清除畫面</button>
-        <div class="card">
+        <div class="smallCard">
           <span>Display Max of</span>
           <span>&nbsp;</span>
-          <input type="number" id="maxAnswers" class="input small" placeholder="顯示筆數" value="10" min="1" max="50"/>
+          <input type="number" id="maxAnswers" class="input small smallCard-input" placeholder="顯示筆數" value="10" min="1" max="50"/>
         </div>
       </div>
 
