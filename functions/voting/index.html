@@ -1,0 +1,30 @@
+<!--TODO 尚未加入至入口頁面-->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>國泰金控115年度歲末尾牙 Dress code Voting</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="card" role="region" aria-labelledby="card-title">
+    <h1 id="card-title">您選擇的是：<b><span id="voting-id">None</span></b>&nbsp;號</h1>
+    <!-- <p class="lead">請在下方輸入暱稱（簡單、溫馨）</p> -->
+
+    <form id="form" onsubmit="submitHandler(event)" novalidate>
+      <div class="field">
+        <label for="staffId">員工編號（8碼）</label>
+        <input id="staffId" name="staffId" type="number" placeholder="員工編號（8碼）" required aria-required="true" />
+      </div>
+      <div class="actions">
+        <button type="submit">送出</button>
+      </div>
+    </form>
+
+    <p id="feedback"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
