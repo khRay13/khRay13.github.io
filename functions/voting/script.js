@@ -54,16 +54,75 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 
-// TODO submit前的popup確認視窗
-// TODO 將submit與api gateway串接
+// submit event listener (now accepts parameters)
+// Helper: show/hide waiting spinner in feedback element
+function showSpinnerIn(element, text = '投票中...') {
+    if (!element) return;
+    element.textContent = text;
+    // avoid duplicate within this element
+    if (!element.querySelector('.voting-spinner')) {
+        const sp = document.createElement('span');
+        sp.className = 'voting-spinner';
+        element.appendChild(sp);
+    }
+}
+
+function hideSpinnerIn(element, finalText = '') {
+    if (!element) return;
+    const sp = element.querySelector('.voting-spinner');
+    if (sp) sp.remove();
+    element.textContent = finalText;
+}
+
+// submit to Lambda with 10s timeout using AbortController
+async function submitEventListener(voteNbr, staffId) {
+    const lambdaUrl = 'https://3kwozocua2wyg5aebwb5uxxele0ljmdp.lambda-url.ap-southeast-1.on.aws/';
+    const payload = { VoteNbr: voteNbr, StaffID: staffId, timestamp: Date.now() };
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const timeout = 10000; // 10 seconds
+    const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.warn('Lambda 呼叫超時，已中止');
+    }, timeout);
+
+    try {
+        const response = await fetch(lambdaUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            console.error('Lambda 回應錯誤，狀態：', response.status);
+            return false;
+        }
+
+        const result = await response.json();
+        console.log('Lambda 回應：', result);
+        return true;
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            console.error('呼叫 Lambda 時發生中止（可能超時）', err);
+        } else {
+            console.error('呼叫 Lambda 失敗：', err);
+        }
+        clearTimeout(timeoutId);
+        return false;
+    }
+}
+
 // submit handler
-function submitHandler(e) {
+async function submitHandler(e) {
     e.preventDefault();
     const input = document.getElementById('staffId');
     const fb = document.getElementById('feedback');
 
-    const val = input.value.trim();
-    if (!val) {
+    const StaffID = input.value.trim();
+    if (!StaffID) {
         fb.textContent = '請輸入員工編號（8碼）再送出。';
         input.focus();
         return;
@@ -71,18 +130,44 @@ function submitHandler(e) {
 
     // 以下是正責8碼數字驗證的範例
     const idPattern = /^\d{8}$/;
-    if (!idPattern.test(val)) {
+    if (!idPattern.test(StaffID)) {
         fb.textContent = '員工編號格式錯誤，請輸入8碼數字。';
         input.focus();
         return;
     }
+    // 取得 voteNbr（優先從畫面元素讀取）
+    const voteNbrElem = document.getElementById('voting-id');
+    const voteNbr = voteNbrElem ? voteNbrElem.textContent.trim() : '';
 
-    // fb.textContent = `謝謝，投票 ${val} 成功！已經收到回覆。`;
-    fb.textContent = `謝謝，投票成功！已經收到回覆。`;
+    // 顯示確認視窗（popup），使用者確認才送出
+    const confirmMsg = `請確認送出投票：\n選擇：${voteNbr || '(無)'}\n員編：${StaffID}`;
+    if (!window.confirm(confirmMsg)) {
+        fb.textContent = '已取消送出。';
+        return;
+    }
+
+    // Call submit API with parameters and handle result
     const btn = e.target.querySelector('button[type="submit"]');
-    btn.animate([
-        { transform: 'translateY(0)' },
-        { transform: 'translateY(-6px)' },
-        { transform: 'translateY(0)' }
-    ], { duration: 300 });
+    if (btn) btn.disabled = true;
+
+    // 顯示 waiting 動畫
+    showSpinnerIn(fb, '投票中，請稍候...');
+
+    try {
+        const success = await submitEventListener(voteNbr, StaffID);
+        if (success) {
+            hideSpinnerIn(fb, '謝謝，投票成功！已經收到回覆。');
+            if (btn) {
+                btn.animate([
+                    { transform: 'translateY(0)' },
+                    { transform: 'translateY(-6px)' },
+                    { transform: 'translateY(0)' }
+                ], { duration: 300 });
+            }
+        } else {
+            hideSpinnerIn(fb, '投票失敗，請稍後再試。');
+        }
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
