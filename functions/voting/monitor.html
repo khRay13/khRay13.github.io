@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="ws.css">
+<title>搶答即時看板 — WebSocket Client</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="title">
+        <h1>🗳️高雄CDC尾牙 dress code 投票即時結果🗳️</h1>
+        <div id="connStatus" class="status">
+          <div class="websocket-container">
+            <span class="websocket-label">WebSocket: </span>
+            <input type="password" id="wssUrl" class="websocket-input" placeholder="Enter wss URL"/>
+          </div>
+          <span class="dot"></span><span id="statusText">未連線</span>
+          <button id="btnToggle" class="btn small">Connect</button>
+        </div>
+      </div>
+
+      <div id="voting-list" class="voting-list-cls"></div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+  <script src="ws.js"></script>
+  <script src="voting-sim.js"></script>
+</body>
+</html>
