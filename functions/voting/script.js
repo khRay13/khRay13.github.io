@@ -193,8 +193,8 @@ async function submitHandler(e) {
                 ], { duration: 300 });
             }
         } else {
-            hideSpinnerIn(fb, '投票失敗，請稍後再試。');
-            await uiAlert('投票失敗，請稍後再試。');
+            hideSpinnerIn(fb, '投票失敗，或者您已投過，請稍後再試，謝謝。');
+            await uiAlert('投票失敗，或者您已投過，請稍後再試，謝謝。');
         }
     } finally {
         if (btn) btn.disabled = false;
