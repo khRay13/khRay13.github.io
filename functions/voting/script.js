@@ -54,6 +54,32 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 
+// Simple UI wrappers that use native alert/confirm but return Promises
+function uiAlert(message) {
+    return new Promise((resolve) => {
+        try {
+            alert(message);
+        } catch (e) {
+            // in environments where alert is unavailable, fallback to console
+            console.log('ALERT:', message);
+        }
+        resolve();
+    });
+}
+
+function uiConfirm(message) {
+    return new Promise((resolve) => {
+        try {
+            const ok = confirm(message);
+            resolve(Boolean(ok));
+        } catch (e) {
+            // fallback: treat as cancelled
+            console.log('CONFIRM (fallback cancel):', message);
+            resolve(false);
+        }
+    });
+}
+
 // submit event listener (now accepts parameters)
 // Helper: show/hide waiting spinner in feedback element
 function showSpinnerIn(element, text = '投票中...') {
@@ -123,15 +149,15 @@ async function submitHandler(e) {
 
     const StaffID = input.value.trim();
     if (!StaffID) {
-        fb.textContent = '請輸入員工編號（8碼）再送出。';
+        await uiAlert('請輸入員工編號（8碼）再送出。');
         input.focus();
         return;
     }
 
-    // 以下是正責8碼數字驗證的範例
+    // 以下是正則8碼數字驗證
     const idPattern = /^\d{8}$/;
     if (!idPattern.test(StaffID)) {
-        fb.textContent = '員工編號格式錯誤，請輸入8碼數字。';
+        await uiAlert('員工編號格式錯誤，請輸入8碼數字。');
         input.focus();
         return;
     }
@@ -141,8 +167,9 @@ async function submitHandler(e) {
 
     // 顯示確認視窗（popup），使用者確認才送出
     const confirmMsg = `請確認送出投票：\n選擇：${voteNbr || '(無)'}\n員編：${StaffID}`;
-    if (!window.confirm(confirmMsg)) {
-        fb.textContent = '已取消送出。';
+    const confirmed = await uiConfirm(confirmMsg);
+    if (!confirmed) {
+        await uiAlert('已取消送出。');
         return;
     }
 
@@ -157,6 +184,7 @@ async function submitHandler(e) {
         const success = await submitEventListener(voteNbr, StaffID);
         if (success) {
             hideSpinnerIn(fb, '謝謝，投票成功！已經收到回覆。');
+            await uiAlert('謝謝，投票成功！已經收到回覆。');
             if (btn) {
                 btn.animate([
                     { transform: 'translateY(0)' },
@@ -165,7 +193,8 @@ async function submitHandler(e) {
                 ], { duration: 300 });
             }
         } else {
-            hideSpinnerIn(fb, '投票失敗，請稍後再試。');
+            hideSpinnerIn(fb, '投票失敗，或者您已投過，請稍後再試，謝謝。');
+            await uiAlert('投票失敗，或者您已投過，請稍後再試，謝謝。');
         }
     } finally {
         if (btn) btn.disabled = false;

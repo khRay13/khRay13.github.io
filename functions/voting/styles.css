@@ -48,6 +48,24 @@ body {
     gap: var(--gap);
 }
 
+/* page title above the card */
+.page-wrapper {
+    width: 100%;
+    max-width: var(--max-width);
+}
+.page-header {
+    margin-bottom: 12px;
+}
+.page-title {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-strong);
+    text-align: left;
+    /* subtle floating effect */
+    text-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
 h1 {
     margin: 0;
     font-size: 20px;
@@ -85,12 +103,9 @@ input[type="number"] {
     /* color: var(--text-strong); */
     transition: box-shadow 0.2s, transform 0.1s;
 }
-/* input[type="number"]::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-} */
+
 input[type="number"]:focus {
     outline: none;
-    /* box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); */
     transform: translateY(-2px);
 }
 
@@ -142,6 +157,9 @@ button[type="submit"]:focus {
 }
 
 @media (max-width: 720px) {
+    .page-title {
+        font-size: 18px;
+    }
     .card {
     padding: 24px;
     }

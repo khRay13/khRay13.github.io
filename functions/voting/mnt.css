@@ -1,0 +1,382 @@
+@font-face {
+    font-family: "Noto Sans TC Local";
+    src: local("Noto Sans TC"), local("NotoSansTC");
+}
+:root{
+    --box-sizing-set: 1;
+}
+/* make sizing predictable so padding is included in height calculations */
+*{box-sizing:border-box}
+
+:root{
+    /* align colors with main voting page */
+    --bg-start: #6FBA2C;
+    --bg-end: #05994d;
+    --card-start: #C33E35;
+    --card-end: #8c1119;
+    --btn-color: #0F4A4C;
+    --btn-shadow: rgba(0, 0, 0, 0.24);
+    --accent: #10b981; /* green-ish accent */
+    --muted: rgba(255,255,255,0.8);
+    /* answer item sizing */
+    --answer-height: 56px;
+    --navy-blue: #00022f;
+}
+
+html,body{
+    height:100vh;
+    margin:0;
+    padding:0;
+    font-family:"Noto Sans TC Local","Noto Sans",Segoe UI,Roboto,Arial,sans-serif;
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    color:var(--text-strong, #ffffff);
+    overflow: hidden; /* prevent page-level scrollbars */
+}
+
+.container{
+    max-width:1000px;
+    margin:0 auto;
+    padding:16px;
+    height:100vh; /* fill viewport */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.card{
+    background: linear-gradient(225deg, var(--card-start), var(--card-end));
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.15);
+    border:1px solid rgba(0,0,0,0.08);
+    width:100%;
+    max-width:var(--max-width);
+    height: 100%;
+    display:flex;
+    flex-direction:column;
+}
+
+.title {
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:14px;
+    flex-wrap:wrap; /* allow children to wrap on small screens */
+}
+
+.title h1 {
+    font-size: clamp(18px, 3.5vw, 22px);
+    margin:0;
+    flex: 1 1 auto;
+    min-width: 0; /* allow truncation/ellipsis if needed */
+}
+
+/* Responsive adjustments: when very narrow, make title and status stack */
+@media (max-width: 520px) {
+    .title h1 {
+        flex-basis: 100%;
+        font-size: 18px;
+    }
+    .status {
+        flex-basis: 100%;
+        margin-left: 0;
+        margin-top: 8px;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+    .websocket-container {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .websocket-input {
+        width: 100%;
+    }
+}
+
+/* .subtitle removed */
+.status {
+    margin-left:auto;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:999px;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    background: rgba(255,255,255,0.02);
+    color:var(--muted);
+}
+.status .btn{
+    margin-left:8px;
+}
+.status .dot {
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    background:#ff6b6b;
+    box-shadow:0 0 6px rgba(255,107,107,0.4);
+}
+
+.status.connected {
+    color:#0b1220;
+    background: linear-gradient(90deg,var(--accent), #10b981);
+}
+
+.status.connected .dot {
+    background: #004b3a;
+}
+.websocket-input:hover {
+    border-color: #999;
+}
+
+/* Focus effect for the input */
+.websocket-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Ensure the input and label align properly */
+.websocket-container {
+    display: inline-flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.status {
+    margin-left:auto;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:999px;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    background: rgba(255,255,255,0.02);
+    color:var(--muted);
+}
+
+.status .dot {
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    background:#ff6b6b;
+    box-shadow:0 0 6px rgba(255,107,107,0.4);
+}
+
+.status.connected {
+    color:#0b1220;
+    background: linear-gradient(90deg,var(--accent), #10b981);
+}
+
+.status.connected .dot {
+    background: #004b3a;
+}
+
+.voting-list-cls {
+    background: var(--navy-blue);
+    border-radius:10px;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:var(--gap,8px);
+    /* allow the voting-list area to grow/shrink so the whole card fits the viewport without page scrollbars */
+    flex: 1 1 auto;
+    min-height: 0; /* allow flex child to shrink */
+    /* limit to 10 items' worth of height; if content exceeds this, allow internal scrolling */
+    max-height: calc(var(--answer-height) * 10 + (var(--gap,8px) * 9) + 24px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start; /* allow children to set their own width (we will render proportional widths per answer) */
+}
+
+.answer {
+    /* stronger surface so each answer stands out from the dark container */
+    background: linear-gradient(135deg, rgba(255, 168, 0, 0.95), rgba(255, 191, 0, 0.85));
+    border-radius:10px;
+    padding:6px 12px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow: inset 0 -6px 18px rgba(0,0,0,0.12), 0 6px 18px rgba(2,6,23,0.12);
+    transition: transform .12s ease, background .18s ease, width 700ms cubic-bezier(.2,.9,.2,1);
+    min-height: var(--answer-height);
+    max-height: var(--answer-height);
+    width: 100%; /* default full width; JS will override with proportional widths */
+    overflow: hidden;
+    min-width: 180px;
+}
+
+/* hover emphasis */
+.answer:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+
+/* rank badge */
+.answer .rank{
+    width:34px;
+    height:34px;
+    border-radius:8px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    color: var(--card-start);
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+    margin-right:4px; /* reduce space between rank and name */
+    flex: 0 0 auto;
+}
+
+.answer .who{
+    color: #06121a; /* darker text for readability */
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.answer .score{
+    color: var(--navy-blue);
+    font-weight:800;
+    font-size:clamp(14px, 2.5vw, 22px);
+    flex: 0 0 auto;
+}
+
+/* progress bar shown under each answer to represent vote share */
+.answer .progress {
+    flex-basis: 100%;
+    height: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    margin-left: 12px;
+    margin-right: 12px;
+    overflow: hidden;
+}
+.answer .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(16,185,129,0.95), rgba(59,130,246,0.95));
+    transition: width 700ms cubic-bezier(.2,.9,.2,1);
+}
+
+.answer.new {
+    box-shadow: 0 8px 30px rgba(6,182,212,0.08);
+    transform: translateY(-4px);
+}
+
+.avatar {
+    width:40px;
+    height:40px;
+    border-radius:8px;
+    background:linear-gradient(180deg,#1f2937,#111827);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    color:#a9f5ff;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.meta .who {
+    font-weight:700;
+    font-size:clamp(14px, 3vw, 20px);
+    color: #06121a;
+}
+
+/* left side container: rank + who, keep them close together */
+.meta-left{
+    display:flex;
+    align-items:center;
+    gap:4px; /* small gap between rank and name */
+    flex:1 1 auto;
+    min-width:0; /* allow truncation of name */
+}
+
+.meta-right{
+    flex:0 0 auto;
+}
+
+.meta .ts {
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.meta .txt {
+    color:var(--muted);
+    font-size:13px;
+    margin-top:4px;
+}
+
+.score {
+    font-weight:700;
+    color:var(--accent);
+    font-size:clamp(14px, 5vw, 36px);
+}
+
+.controls {
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+}
+
+.btn {
+    background: var(--btn-color);
+    border: none;
+    color: #fff;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    box-shadow: 0 6px 18px var(--btn-shadow);
+}
+
+/* match the submit button animation from main page: hover lifts, active/press gives subtle feedback */
+.btn {
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px var(--btn-shadow);
+}
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px var(--btn-shadow);
+}
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+}
+
+/* disabled visual state for buttons (keyboard-friendly via aria-disabled too) */
+.btn[disabled], .btn[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+.btn[disabled]:focus, .btn[aria-disabled="true"]:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.small {
+    font-size:13px;
+    padding:6px 8px;
+}
+
+.log {
+    background: var(--navy-blue);
+    border-radius:10px;
+    padding:12px;
+    height:20vh;
+    overflow: hidden; /* avoid scrollbars on the page */
+    font-family: monospace;
+    font-size:13px;
+    color:#cfeffd;
+    border:1px solid rgba(255,255,255,0.02);
+    margin-top: 12px;
+}
