@@ -56,8 +56,6 @@ html,body{
     flex-direction:column;
 }
 
-/* removed .smallCard/.smallCard-input (Display Max of) per request */
-
 .title {
     display:flex;
     gap:10px;
@@ -204,6 +202,7 @@ html,body{
     max-height: var(--answer-height);
     width: 100%; /* default full width; JS will override with proportional widths */
     overflow: hidden;
+    min-width: 180px;
 }
 
 /* hover emphasis */
@@ -231,15 +230,12 @@ html,body{
     color: #06121a; /* darker text for readability */
     font-weight:700;
     white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
 }
 
 .answer .score{
     color: var(--navy-blue);
     font-weight:800;
     font-size:clamp(14px, 2.5vw, 22px);
-    margin-left:auto;
     flex: 0 0 auto;
 }
 
@@ -280,7 +276,7 @@ html,body{
 .meta {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     width: 100%;
 }
 
@@ -294,7 +290,7 @@ html,body{
 .meta-left{
     display:flex;
     align-items:center;
-    gap:6px; /* small gap between rank and name */
+    gap:4px; /* small gap between rank and name */
     flex:1 1 auto;
     min-width:0; /* allow truncation of name */
 }
