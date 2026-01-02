@@ -154,11 +154,12 @@ function renderProportionalList(container, data, valueKey, nameKey) {
     el.style.width = pct + '%';
 
     // 設置內部 HTML 結構，使用傳入的鍵名
+    // <div class="who">No.${escapeHtml(item[nameKey])}</div>
     el.innerHTML = `
       <div class="meta">
         <div class="meta-left">
             <div class="rank">${index + 1}</div>
-            <div class="who">No.${escapeHtml(item[nameKey])}</div>
+            <div class="who">${escapeHtml(item[nameKey])}</div>
         </div>
         <div class="meta-right">
             <div class="score">${escapeHtml(currentVal)}</div>
@@ -188,12 +189,13 @@ function renderVotes() {
   votingListEl.innerHTML = '';
 
   // votingState 預期為：[{ rank: x, candidate: y, updated_at: ts }, ...]
+  // <div class="meta-left"><div class="who">${escapeHtml(itm.candidate)}</div></div>
   votingState.forEach((itm, i) => {
     const el = document.createElement('div');
     el.className = 'answer' + (i === 0 ? ' new' : '');
     el.innerHTML = `
       <div class="meta">
-        <div class="meta-left"><div class="who">${escapeHtml(itm.candidate)}</div></div>
+        <div class="meta-left"><div class="who">${escapeHtml(itm.staffName)}</div></div>
         <div class="meta-right"><div class="ts">${escapeHtml(itm.votes)}</div></div>
       </div>
     `;
@@ -224,7 +226,8 @@ async function fetchVotes() {
 
         votingState = data.results.slice(0, 10); // 確保最多 10 筆
         renderVotes();
-        renderProportionalList(votingListEl, votingState, 'votes', 'candidate');
+        // renderProportionalList(votingListEl, votingState, 'votes', 'candidate');
+        renderProportionalList(votingListEl, votingState, 'votes', 'staffName');
 
         console.log("資料更新成功 👍 " + formatDateTime());
     } catch (err) {
