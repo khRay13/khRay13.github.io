@@ -146,6 +146,12 @@ async function submitHandler(e) {
     e.preventDefault();
     const input = document.getElementById('staffId');
     const fb = document.getElementById('feedback');
+    const curr_time = new Date();
+    const dead_line = new Date('2026-01-19T19:50:00+08:00');
+    if (curr_time > dead_line) {
+        await uiAlert('投票已截止，感謝您的參與！');
+        return;
+    }
 
     const StaffID = input.value.trim();
     if (!StaffID) {
